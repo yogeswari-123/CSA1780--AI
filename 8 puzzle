@@ -1,0 +1,71 @@
+import heapq
+
+# Function to find the position of the empty tile (0)
+def find_empty(board):
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == 0:
+                return i, j
+
+# Function to calculate the Manhattan distance
+def manhattan(board, goal):
+    dist = 0
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] != 0:
+                x, y = divmod(goal.index(board[i][j]), 3)
+                dist += abs(x - i) + abs(y - j)
+    return dist
+
+# Function to generate new board states by moving the empty tile
+def generate_states(board, empty_pos):
+    x, y = empty_pos
+    moves = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+    new_states = []
+    
+    for move in moves:
+        nx, ny = x + move[0], y + move[1]
+        if 0 <= nx < 3 and 0 <= ny < 3:
+            new_board = [row[:] for row in board]
+            new_board[x][y], new_board[nx][ny] = new_board[nx][ny], new_board[x][y]
+            new_states.append((new_board, (nx, ny)))
+    
+    return new_states
+
+# A* algorithm to solve the puzzle
+def solve_puzzle(start, goal):
+    empty_pos = find_empty(start)
+    goal_flat = [num for row in goal for num in row]
+    
+    heap = [(manhattan(start, goal_flat), start, empty_pos, 0, None)]
+    visited = set()
+    
+    while heap:
+        _, board, empty_pos, g_cost, parent = heapq.heappop(heap)
+        
+        if board == goal:
+            return g_cost
+        
+        visited.add(tuple(map(tuple, board)))
+        
+        for new_board, new_empty_pos in generate_states(board, empty_pos):
+            if tuple(map(tuple, new_board)) not in visited:
+                heapq.heappush(heap, (g_cost + manhattan(new_board, goal_flat), new_board, new_empty_pos, g_cost + 1, board))
+    
+    return None
+
+# Example usage
+start = [
+    [1, 2, 3],
+    [0, 4, 5],
+    [7, 8, 6]
+]
+
+goal = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 0]
+]
+
+moves = solve_puzzle(start, goal)
+print(f"Solution found in {moves} moves.")
