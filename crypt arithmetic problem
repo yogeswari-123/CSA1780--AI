@@ -1,0 +1,45 @@
+print("Crypt-Arithmetic Problem")
+
+# Function to check if the current mapping satisfies the cryptarithmetic equation
+def is_solution_valid(mapping, words, result):
+    word_values = [int(''.join(str(mapping[c]) for c in word)) for word in words]
+    result_value = int(''.join(str(mapping[c]) for c in result))
+    return sum(word_values) == result_value
+
+# Function to solve the cryptarithmetic problem
+def solve_cryptarithmetic(words, result):
+    all_letters = set(''.join(words + [result]))
+    
+    # If there are more than 10 unique letters, no solution is possible (digits are 0-9)
+    if len(all_letters) > 10:
+        return None
+    
+    unique_letters = sorted(all_letters)
+    from itertools import permutations as permute
+    
+    # Try every permutation of digits for the unique letters
+    for perm in permute(range(10), len(unique_letters)):
+        mapping = {letter: digit for letter, digit in zip(unique_letters, perm)}
+        
+        # Skip invalid mappings where a word starts with a zero
+        if any(mapping[word[0]] == 0 for word in words) or mapping[result[0]] == 0:
+            continue
+        
+        if is_solution_valid(mapping, words, result):
+            return mapping
+    return None
+
+f = str(input("Enter the first word: "))
+s = str(input("Enter the second word: "))
+t = str(input("Enter the third word: "))
+result = str(input("Enter the result word: "))
+
+words = [f, s, t]
+solution = solve_cryptarithmetic(words, result)
+
+if solution:
+    print("Solution found:")
+    for letter, digit in solution.items():
+        print(f"{letter} = {digit}")
+else:
+                  print("No solution found for the given cryptarithmetic problem.")
