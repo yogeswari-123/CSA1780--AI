@@ -1,0 +1,33 @@
+import random
+
+def create_board():
+    return [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+
+def get_moves(board):
+    return [(i, j) for i in range(3) for j in range(3) if board[i][j] == 0]
+
+def place(board, player):
+    i, j = random.choice(get_moves(board))
+    board[i][j] = player
+
+def check_win(board, player):
+    return any(all(board[i][j] == player for j in range(3)) for i in range(3)) or \
+           any(all(board[i][j] == player for i in range(3)) for j in range(3)) or \
+           all(board[i][i] == player for i in range(3)) or \
+           all(board[i][2-i] == player for i in range(3))
+
+def play_game():
+    board = create_board()
+    winner = 0
+    for turn in range(9):
+        player = 1 + turn % 2
+        place(board, player)
+        for row in board:
+            print(row)
+        print()
+        if check_win(board, player):
+            winner = player
+            break
+    return f"Player {winner} wins!" if winner else "It's a draw!"
+
+print(play_game())
